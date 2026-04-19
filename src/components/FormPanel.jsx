@@ -9,19 +9,19 @@ function TrustBadges() {
     <div className="trust-badges">
       <span className="trust-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        100% browser-based
+        Private in your browser
       </span>
       <span className="trust-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
         No data saved
       </span>
       <span className="trust-badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Not legal advice
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Print-ready draft
       </span>
-      <span className="trust-badge">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Free
+      <span className="trust-badge trust-badge--caution">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        State rules not included
       </span>
     </div>
   );
@@ -32,15 +32,12 @@ function SuccessCallout({ onReset }) {
     <div className="success-callout" role="status">
       <div className="success-callout__icon" aria-hidden="true">✓</div>
       <div>
-        <strong>Letter generated.</strong>
+        <strong>Draft ready to print.</strong>
         <p>
-          Save the PDF to your records. Attach physical receipts for any
-          deductions when you send this to your tenant.
+          Save the PDF, then attach physical receipts for each deduction before mailing to your tenant.
         </p>
         <p className="success-callout__sub">
-          <strong>Reminder:</strong> Most states require landlords to send the
-          itemized statement within 14–30 days of move-out. Check your local
-          rules.
+          <strong>Before you send:</strong> Deadlines, allowable deductions, and notice requirements vary by state and sometimes by city. This tool formats your letter — it does not verify whether your deductions are lawful or whether you are within your return window. Check your local rules before mailing.
         </p>
         <button type="button" className="btn btn-outline" style={{ marginTop: '0.75rem' }} onClick={onReset}>
           Start a new letter
@@ -99,17 +96,18 @@ export default function FormPanel({
   return (
     <section className="form-panel no-print" aria-label="Letter form">
       <div className="form-panel__hero">
-        <h1>Generate a Security Deposit Deduction Letter in Minutes.</h1>
+        <h1>Create a Print-Ready Security Deposit Itemization Letter.</h1>
         <p>
-          Itemize damages, calculate the balance, and export a professional
-          PDF your tenant can't dispute on formatting alone.
+          Organize deductions, calculate the balance, and generate a clean
+          professional draft. Review your state and local requirements before
+          sending.
         </p>
         <TrustBadges />
       </div>
 
       {errorList.length > 0 && (
         <div className="validation-banner" role="alert" aria-live="polite">
-          <strong>Fix these items before downloading:</strong>
+          <strong>Fix these items before printing:</strong>
           <ul>
             {errorList.map((item, index) => (
               <li key={`${item}-${index}`}>{item}</li>
@@ -138,7 +136,7 @@ export default function FormPanel({
           </strong>
         </div>
         <p className="summary-card__note">
-          Preview updates instantly. Click <em>Download PDF Letter</em> when ready.
+          Preview updates instantly. Click <em>Print / Save as PDF</em> when ready.
         </p>
       </div>
 
@@ -225,8 +223,7 @@ export default function FormPanel({
             placeholder={"789 New St\nCambridge, MA 02139"}
           />
           <p className="helper-text">
-            If known, include the tenant's new address so the letter can be
-            mailed directly.
+            Include the tenant's new address to mail the letter directly.
           </p>
         </div>
       </div>
@@ -307,7 +304,7 @@ export default function FormPanel({
         <h3>Itemized Deductions</h3>
         <p className="helper-text" style={{ marginBottom: '1rem' }}>
           Be objective and specific. Use invoice numbers where available.
-          Attach receipts to the printed letter.
+          Attach original receipts to the printed letter.
         </p>
 
         {data.deductions.map((item, index) => {
@@ -342,6 +339,10 @@ export default function FormPanel({
                     className={getFieldClass(descriptionError)}
                     aria-invalid={Boolean(descriptionError)}
                   />
+                  <p className="helper-text">
+                    Keep it objective. Example: &quot;Professional carpet
+                    cleaning&quot; rather than &quot;Tenant ruined the rug.&quot;
+                  </p>
                   {descriptionError && (
                     <p className="field-error" role="alert">{descriptionError}</p>
                   )}
@@ -407,9 +408,9 @@ export default function FormPanel({
           type="button"
           className="btn btn-primary"
           onClick={onPrint}
-          title={!isValid ? 'Fill in all required fields to download' : undefined}
+          title={!isValid ? 'Fill in all required fields to continue' : undefined}
         >
-          Download PDF Letter
+          Print / Save as PDF
         </button>
       </div>
     </section>

@@ -122,8 +122,8 @@ export default function LetterPreview({ data, math }) {
         </div>
 
         <p className="preview-note no-print">
-          Preview only — your browser&rsquo;s print dialog generates the final PDF.
-          Use <strong>Save as PDF</strong> in the print dialog.
+          Preview only — use <strong>Print / Save as PDF</strong> above to export.
+          In the print dialog, select <strong>Save as PDF</strong> as the destination.
         </p>
       </div>
     </section>

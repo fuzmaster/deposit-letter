@@ -90,9 +90,9 @@ export default function App() {
           type="button"
           className="btn btn-primary desktop-only"
           onClick={handlePrint}
-          title={!validation.isValid ? 'Fill in all required fields to download' : undefined}
+          title={!validation.isValid ? 'Fill in all required fields to continue' : undefined}
         >
-          Download PDF Letter
+          Print / Save as PDF
         </button>
       </header>
 
@@ -112,8 +112,10 @@ export default function App() {
       </main>
 
       <footer className="site-footer no-print">
-        This tool generates a formatted document only. It does not provide legal advice.
-        Landlords are responsible for understanding and complying with their state and local laws.
+        <strong>Compliance note:</strong> This tool formats your information into a document. It does not
+        determine whether a deduction is legally allowed, what return deadline applies, whether interest
+        is required, or what notices and attachments your state or city may require.{' '}
+        <strong>Review your local laws before sending.</strong>
       </footer>
 
       <div className="mobile-action-bar no-print">
@@ -125,7 +127,7 @@ export default function App() {
           className="btn btn-primary"
           onClick={handlePrint}
         >
-          Preview &amp; Download
+          Print / Save as PDF
         </button>
       </div>
     </div>

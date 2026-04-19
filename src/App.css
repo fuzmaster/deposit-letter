@@ -545,3 +545,18 @@ table.deduction-table th {
   color: #555;
   margin-top: 0.25rem;
 }
+
+/* ─── Caution trust badge variant ─── */
+.trust-badge--caution {
+  border-color: #d97706;
+  color: #92400e;
+  background: #fffbeb;
+}
+
+/* ─── Prevent deduction table rows from splitting across print pages ─── */
+@media print {
+  table.deduction-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
