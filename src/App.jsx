@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
+import posthog from 'posthog-js';
 import FormPanel from './components/FormPanel';
 import LetterPreview from './components/LetterPreview';
+import SeoContent from './components/SeoContent';
+import LeadModal from './components/LeadModal';
 import { parseNum, validateData } from './utils/helpers';
 import './App.css';
 
@@ -21,6 +24,8 @@ function useDepositLetterState() {
   const [data, setData] = useState(initialData);
   const [showValidation, setShowValidation] = useState(false);
   const [printed, setPrinted] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [formStarted, setFormStarted] = useState(false);
 
   const deposit = parseNum(data.originalDeposit);
   const interest = parseNum(data.accruedInterest);
@@ -38,20 +43,43 @@ function useDepositLetterState() {
 
   const validation = useMemo(() => validateData(data), [data]);
 
+  // Track first interaction — fires once per session
+  const handleFormStart = () => {
+    if (!formStarted) {
+      posthog.capture('form_started');
+      setFormStarted(true);
+    }
+  };
+
   const handlePrint = () => {
     setShowValidation(true);
+
     if (!validation.isValid) {
+      posthog.capture('validation_failed', {
+        error_count: validation.errorList.length,
+      });
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+
+    posthog.capture('pdf_download_clicked', {
+      deduction_count: data.deductions.length,
+      balance_due: math.balance,
+    });
+
     window.print();
     setPrinted(true);
+
+    // Show lead modal after user returns from print dialog
+    setTimeout(() => setShowLeadModal(true), 1500);
   };
 
   const handleReset = () => {
     setData(initialData);
     setShowValidation(false);
     setPrinted(false);
+    setFormStarted(false);
+    posthog.capture('form_reset');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -62,6 +90,9 @@ function useDepositLetterState() {
     validation,
     showValidation,
     printed,
+    showLeadModal,
+    setShowLeadModal,
+    handleFormStart,
     handlePrint,
     handleReset,
   };
@@ -75,6 +106,9 @@ export default function App() {
     validation,
     showValidation,
     printed,
+    showLeadModal,
+    setShowLeadModal,
+    handleFormStart,
     handlePrint,
     handleReset,
   } = useDepositLetterState();
@@ -107,9 +141,12 @@ export default function App() {
           printed={printed}
           onPrint={handlePrint}
           onReset={handleReset}
+          onFormStart={handleFormStart}
         />
         <LetterPreview data={data} math={math} />
       </main>
+
+      <SeoContent />
 
       <footer className="site-footer no-print">
         <strong>Compliance note:</strong> This tool formats your information into a document. It does not
@@ -130,6 +167,11 @@ export default function App() {
           Print / Save as PDF
         </button>
       </div>
+
+      <LeadModal
+        isOpen={showLeadModal}
+        onClose={() => setShowLeadModal(false)}
+      />
     </div>
   );
 }

@@ -121,6 +121,7 @@ export default function FormPanel({
   printed,
   onPrint,
   onReset,
+  onFormStart,
 }) {
   const updateField = (field, value) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -213,6 +214,7 @@ export default function FormPanel({
             type="text"
             value={data.landlordName}
             onChange={(e) => updateField('landlordName', e.target.value)}
+            onFocus={onFormStart}
             className={getFieldClass(errors.landlordName)}
             aria-invalid={Boolean(errors.landlordName)}
             aria-describedby={errors.landlordName ? 'landlordName-error' : undefined}
