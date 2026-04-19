@@ -560,3 +560,97 @@ table.deduction-table th {
     break-inside: avoid;
   }
 }
+
+/* ─── Pre-export checklist ─── */
+.checklist-block {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  background: #fafafa;
+}
+.checklist-block__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  color: var(--text-main);
+}
+.checklist-block__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.85rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.checklist-block__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.checklist-icon {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.checklist-block__note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
+/* ─── About this tool section ─── */
+.about-block {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+.about-block__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .about-block__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.about-block__col h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--text-main);
+  border: none;
+  padding: 0;
+}
+.about-block__col em {
+  font-style: italic;
+}
+.about-block__col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.about-block__col ul li {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.45;
+}
+.about-block__col ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--border-color);
+}

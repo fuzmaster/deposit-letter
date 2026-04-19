@@ -47,6 +47,70 @@ function SuccessCallout({ onReset }) {
   );
 }
 
+function PreExportChecklist() {
+  return (
+    <div className="checklist-block">
+      <h3 className="checklist-block__title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Before You Send — What to Include
+      </h3>
+      <ul className="checklist-block__list">
+        <li>
+          <span className="checklist-icon">📄</span>
+          <span>This itemized deduction letter (signed)</span>
+        </li>
+        <li>
+          <span className="checklist-icon">🧾</span>
+          <span>Original receipts or invoices for each deduction</span>
+        </li>
+        <li>
+          <span className="checklist-icon">📸</span>
+          <span>Move-out photos documenting the damage (if available)</span>
+        </li>
+        <li>
+          <span className="checklist-icon">💵</span>
+          <span>Check or money order for the balance due (if any refund applies)</span>
+        </li>
+        <li>
+          <span className="checklist-icon">📬</span>
+          <span>Send via certified mail with return receipt — keep your tracking number</span>
+        </li>
+      </ul>
+      <p className="checklist-block__note">
+        Requirements vary by state. Some jurisdictions require sworn statements, specific forms, or receipts above a certain threshold. Verify your local rules before mailing.
+      </p>
+    </div>
+  );
+}
+
+function AboutThisTool() {
+  return (
+    <div className="about-block no-print">
+      <div className="about-block__grid">
+        <div className="about-block__col">
+          <h3>Who this is for</h3>
+          <ul>
+            <li>Self-managing landlords handling move-out accounting</li>
+            <li>Small property managers processing frequent turnovers</li>
+            <li>Accidental landlords who need a clean, professional letter fast</li>
+            <li>Anyone who wants math done automatically and a formatted document ready to print</li>
+          </ul>
+        </div>
+        <div className="about-block__col">
+          <h3>What this does <em>not</em> do</h3>
+          <ul>
+            <li>Does not determine whether a deduction is legally allowed in your state</li>
+            <li>Does not check whether you are within your return deadline</li>
+            <li>Does not tell you if interest is owed on the deposit</li>
+            <li>Does not replace a landlord-tenant attorney for contested disputes</li>
+            <li>Does not store, send, or track anything — all data stays in your browser</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FormPanel({
   data,
   setData,
@@ -400,6 +464,9 @@ export default function FormPanel({
         </div>
       </div>
 
+      {/* Pre-export checklist — always visible before CTA */}
+      <PreExportChecklist />
+
       <div className="form-actions form-actions--primary">
         <button type="button" className="btn btn-outline" onClick={onReset}>
           Reset Form
@@ -413,6 +480,9 @@ export default function FormPanel({
           Print / Save as PDF
         </button>
       </div>
+
+      {/* Below-fold trust / about section */}
+      <AboutThisTool />
     </section>
   );
 }

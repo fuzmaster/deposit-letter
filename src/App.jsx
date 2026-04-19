@@ -84,7 +84,7 @@ export default function App() {
       <header className="site-header no-print">
         <div className="site-header__brand">
           <h2>DepositLetter</h2>
-          <p>Free security deposit deduction letter generator</p>
+          <p>Deposit return letter builder for landlords</p>
         </div>
         <button
           type="button"
