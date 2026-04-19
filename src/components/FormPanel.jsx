@@ -1,16 +1,53 @@
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount || 0);
-}
+import { formatCurrency, makeId } from '../utils/helpers';
 
 function getFieldClass(error) {
   return error ? 'input-error' : '';
 }
 
-function makeId(prefix, suffix = '') {
-  return suffix ? `${prefix}-${suffix}` : prefix;
+function TrustBadges() {
+  return (
+    <div className="trust-badges">
+      <span className="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        100% browser-based
+      </span>
+      <span className="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        No data saved
+      </span>
+      <span className="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Not legal advice
+      </span>
+      <span className="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Free
+      </span>
+    </div>
+  );
+}
+
+function SuccessCallout({ onReset }) {
+  return (
+    <div className="success-callout" role="status">
+      <div className="success-callout__icon" aria-hidden="true">✓</div>
+      <div>
+        <strong>Letter generated.</strong>
+        <p>
+          Save the PDF to your records. Attach physical receipts for any
+          deductions when you send this to your tenant.
+        </p>
+        <p className="success-callout__sub">
+          <strong>Reminder:</strong> Most states require landlords to send the
+          itemized statement within 14–30 days of move-out. Check your local
+          rules.
+        </p>
+        <button type="button" className="btn btn-outline" style={{ marginTop: '0.75rem' }} onClick={onReset}>
+          Start a new letter
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function FormPanel({
@@ -19,6 +56,8 @@ export default function FormPanel({
   math,
   errors,
   errorList,
+  isValid,
+  printed,
   onPrint,
   onReset,
 }) {
@@ -60,11 +99,12 @@ export default function FormPanel({
   return (
     <section className="form-panel no-print" aria-label="Letter form">
       <div className="form-panel__hero">
-        <h1>Write Your Security Deposit Deduction Letter in Minutes.</h1>
+        <h1>Generate a Security Deposit Deduction Letter in Minutes.</h1>
         <p>
-          Itemize damages, calculate totals, and generate a professional,
-          tenant-ready PDF instantly.
+          Itemize damages, calculate the balance, and export a professional
+          PDF your tenant can't dispute on formatting alone.
         </p>
+        <TrustBadges />
       </div>
 
       {errorList.length > 0 && (
@@ -78,30 +118,34 @@ export default function FormPanel({
         </div>
       )}
 
+      {printed && <SuccessCallout onReset={onReset} />}
+
       <div className="summary-card" aria-label="Calculation summary">
-        <h3>Letter Summary</h3>
+        <h3>Live Summary</h3>
         <div className="summary-card__row">
-          <span>Total deposit + interest</span>
+          <span>Deposit + interest</span>
           <strong>{formatCurrency(math.totalAvailable)}</strong>
         </div>
         <div className="summary-card__row">
           <span>Total deductions</span>
-          <strong>{formatCurrency(math.totalDeductions)}</strong>
+          <strong>− {formatCurrency(math.totalDeductions)}</strong>
         </div>
-        <div className="summary-card__row">
-          <span>{math.balance >= 0 ? 'Balance due to tenant' : 'Outstanding balance'}</span>
-          <strong>{formatCurrency(Math.abs(math.balance))}</strong>
+        <div className="summary-card__divider" aria-hidden="true" />
+        <div className="summary-card__row summary-card__row--total">
+          <span>{math.balance >= 0 ? 'Return to tenant' : 'Outstanding balance'}</span>
+          <strong className={math.balance < 0 ? 'text-danger' : ''}>
+            {formatCurrency(Math.abs(math.balance))}
+          </strong>
         </div>
         <p className="summary-card__note">
-          The preview updates instantly as you type. The final PDF uses your
-          browser&apos;s print dialog.
+          Preview updates instantly. Click <em>Download PDF Letter</em> when ready.
         </p>
       </div>
 
       <div className="form-section">
         <h3>Landlord Information</h3>
         <div className="input-group">
-          <label htmlFor="landlordName">Landlord Name</label>
+          <label htmlFor="landlordName">Landlord / Management Company Name</label>
           <input
             id="landlordName"
             type="text"
@@ -109,9 +153,11 @@ export default function FormPanel({
             onChange={(e) => updateField('landlordName', e.target.value)}
             className={getFieldClass(errors.landlordName)}
             aria-invalid={Boolean(errors.landlordName)}
+            aria-describedby={errors.landlordName ? 'landlordName-error' : undefined}
+            placeholder="e.g. John Smith or Acme Properties LLC"
           />
           {errors.landlordName && (
-            <p className="field-error">{errors.landlordName}</p>
+            <p id="landlordName-error" className="field-error" role="alert">{errors.landlordName}</p>
           )}
         </div>
         <div className="input-group">
@@ -123,9 +169,11 @@ export default function FormPanel({
             onChange={(e) => updateField('landlordAddress', e.target.value)}
             className={getFieldClass(errors.landlordAddress)}
             aria-invalid={Boolean(errors.landlordAddress)}
+            aria-describedby={errors.landlordAddress ? 'landlordAddress-error' : undefined}
+            placeholder={"123 Main St\nBoston, MA 02101"}
           />
           {errors.landlordAddress && (
-            <p className="field-error">{errors.landlordAddress}</p>
+            <p id="landlordAddress-error" className="field-error" role="alert">{errors.landlordAddress}</p>
           )}
         </div>
       </div>
@@ -141,13 +189,15 @@ export default function FormPanel({
             onChange={(e) => updateField('tenantNames', e.target.value)}
             className={getFieldClass(errors.tenantNames)}
             aria-invalid={Boolean(errors.tenantNames)}
+            aria-describedby={errors.tenantNames ? 'tenantNames-error' : undefined}
+            placeholder="e.g. Jane Doe and John Doe"
           />
           {errors.tenantNames && (
-            <p className="field-error">{errors.tenantNames}</p>
+            <p id="tenantNames-error" className="field-error" role="alert">{errors.tenantNames}</p>
           )}
         </div>
         <div className="input-group">
-          <label htmlFor="propertyAddress">Property Unit Address</label>
+          <label htmlFor="propertyAddress">Rental Property Address</label>
           <input
             id="propertyAddress"
             type="text"
@@ -155,28 +205,34 @@ export default function FormPanel({
             onChange={(e) => updateField('propertyAddress', e.target.value)}
             className={getFieldClass(errors.propertyAddress)}
             aria-invalid={Boolean(errors.propertyAddress)}
+            aria-describedby={errors.propertyAddress ? 'propertyAddress-error' : undefined}
+            placeholder="e.g. 456 Oak Ave, Unit 2B, Boston, MA"
           />
           {errors.propertyAddress && (
-            <p className="field-error">{errors.propertyAddress}</p>
+            <p id="propertyAddress-error" className="field-error" role="alert">{errors.propertyAddress}</p>
           )}
         </div>
         <div className="input-group">
-          <label htmlFor="forwardingAddress">Tenant Forwarding Address</label>
+          <label htmlFor="forwardingAddress">
+            Tenant Forwarding Address{' '}
+            <span className="optional-label">optional</span>
+          </label>
           <textarea
             id="forwardingAddress"
             rows="3"
             value={data.forwardingAddress}
             onChange={(e) => updateField('forwardingAddress', e.target.value)}
+            placeholder={"789 New St\nCambridge, MA 02139"}
           />
           <p className="helper-text">
-            Optional, but useful if you want the letter addressed to their new
-            mailing address.
+            If known, include the tenant's new address so the letter can be
+            mailed directly.
           </p>
         </div>
       </div>
 
       <div className="form-section">
-        <h3>Dates &amp; Money</h3>
+        <h3>Dates &amp; Deposit</h3>
         <div className="form-grid form-grid--two">
           <div className="input-group">
             <label htmlFor="noticeDate">Notice Date</label>
@@ -189,7 +245,7 @@ export default function FormPanel({
               aria-invalid={Boolean(errors.noticeDate)}
             />
             {errors.noticeDate && (
-              <p className="field-error">{errors.noticeDate}</p>
+              <p className="field-error" role="alert">{errors.noticeDate}</p>
             )}
           </div>
           <div className="input-group">
@@ -203,7 +259,7 @@ export default function FormPanel({
               aria-invalid={Boolean(errors.moveOutDate)}
             />
             {errors.moveOutDate && (
-              <p className="field-error">{errors.moveOutDate}</p>
+              <p className="field-error" role="alert">{errors.moveOutDate}</p>
             )}
           </div>
           <div className="input-group">
@@ -217,13 +273,17 @@ export default function FormPanel({
               onChange={(e) => updateField('originalDeposit', e.target.value)}
               className={getFieldClass(errors.originalDeposit)}
               aria-invalid={Boolean(errors.originalDeposit)}
+              placeholder="0.00"
             />
             {errors.originalDeposit && (
-              <p className="field-error">{errors.originalDeposit}</p>
+              <p className="field-error" role="alert">{errors.originalDeposit}</p>
             )}
           </div>
           <div className="input-group">
-            <label htmlFor="accruedInterest">Accrued Interest ($)</label>
+            <label htmlFor="accruedInterest">
+              Accrued Interest ($){' '}
+              <span className="optional-label">optional</span>
+            </label>
             <input
               id="accruedInterest"
               type="number"
@@ -233,10 +293,11 @@ export default function FormPanel({
               onChange={(e) => updateField('accruedInterest', e.target.value)}
               className={getFieldClass(errors.accruedInterest)}
               aria-invalid={Boolean(errors.accruedInterest)}
+              placeholder="0.00"
             />
-            <p className="helper-text">Optional. Leave blank if none applies.</p>
+            <p className="helper-text">Some states require interest on held deposits.</p>
             {errors.accruedInterest && (
-              <p className="field-error">{errors.accruedInterest}</p>
+              <p className="field-error" role="alert">{errors.accruedInterest}</p>
             )}
           </div>
         </div>
@@ -244,6 +305,11 @@ export default function FormPanel({
 
       <div className="form-section">
         <h3>Itemized Deductions</h3>
+        <p className="helper-text" style={{ marginBottom: '1rem' }}>
+          Be objective and specific. Use invoice numbers where available.
+          Attach receipts to the printed letter.
+        </p>
+
         {data.deductions.map((item, index) => {
           const descriptionError = errors[makeId('deduction-description', item.id)];
           const amountError = errors[makeId('deduction-amount', item.id)];
@@ -276,12 +342,8 @@ export default function FormPanel({
                     className={getFieldClass(descriptionError)}
                     aria-invalid={Boolean(descriptionError)}
                   />
-                  <p className="helper-text">
-                    Keep it objective. Example: &quot;Professional carpet
-                    cleaning&quot; rather than &quot;Tenant ruined the rug.&quot;
-                  </p>
                   {descriptionError && (
-                    <p className="field-error">{descriptionError}</p>
+                    <p className="field-error" role="alert">{descriptionError}</p>
                   )}
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
@@ -293,6 +355,7 @@ export default function FormPanel({
                     type="number"
                     min="0"
                     step="0.01"
+                    placeholder="0.00"
                     value={item.amount}
                     onChange={(e) =>
                       updateDeduction(item.id, 'amount', e.target.value)
@@ -301,48 +364,51 @@ export default function FormPanel({
                     aria-invalid={Boolean(amountError)}
                   />
                   {amountError && (
-                    <p className="field-error">{amountError}</p>
+                    <p className="field-error" role="alert">{amountError}</p>
                   )}
                 </div>
               </div>
               <div className="input-group" style={{ marginBottom: 0, marginTop: '0.75rem' }}>
                 <label htmlFor={makeId('deduction-note', item.id)}>
-                  Reference Note
+                  Reference Note{' '}
+                  <span className="optional-label">optional</span>
                 </label>
                 <input
                   id={makeId('deduction-note', item.id)}
                   type="text"
-                  placeholder="Optional: invoice number or receipt note"
+                  placeholder="e.g. Invoice #204 · ABC Cleaning Co."
                   value={item.note}
                   onChange={(e) => updateDeduction(item.id, 'note', e.target.value)}
                 />
-                <p className="helper-text">
-                  Optional. Example: Invoice #204 or Cleaning receipt attached.
-                </p>
               </div>
             </div>
           );
         })}
+
         {data.deductions.length === 0 && (
-          <p className="helper-text">
-            No deductions added. The full deposit will be returned.
+          <p className="helper-text deduction-empty-hint">
+            No deductions yet — the full deposit will be returned. Add a
+            deduction below if applicable.
           </p>
         )}
+
         <div className="form-actions">
           <button type="button" className="btn btn-outline" onClick={addDeduction}>
             + Add Deduction
           </button>
         </div>
-        <p className="helper-text" style={{ marginTop: '0.5rem' }}>
-          Attach physical receipts to the printed letter when relevant.
-        </p>
       </div>
 
-      <div className="form-actions">
+      <div className="form-actions form-actions--primary">
         <button type="button" className="btn btn-outline" onClick={onReset}>
           Reset Form
         </button>
-        <button type="button" className="btn btn-primary" onClick={onPrint}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onPrint}
+          title={!isValid ? 'Fill in all required fields to download' : undefined}
+        >
           Download PDF Letter
         </button>
       </div>

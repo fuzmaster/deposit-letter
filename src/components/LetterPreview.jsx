@@ -1,26 +1,10 @@
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount || 0);
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '[Date]';
-  const [year, month, day] = dateStr.split('-');
-  const date = new Date(year, month - 1, day);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
+import { formatCurrency, formatDate } from '../utils/helpers';
 
 function getClosingParagraph(balance) {
   if (balance >= 0) {
     return 'Enclosed please find payment for the remaining balance. If you have any questions regarding this statement, please contact the landlord in writing.';
   }
-  return 'The total deductions exceed the original security deposit. According to the itemization above, an outstanding balance remains. Please contact the landlord in writing regarding next steps.';
+  return 'As shown in the itemization above, the total deductions exceed the security deposit originally collected. An outstanding balance remains. Please contact the landlord in writing regarding next steps.';
 }
 
 export default function LetterPreview({ data, math }) {
@@ -49,9 +33,7 @@ export default function LetterPreview({ data, math }) {
               <strong>To:</strong> {data.tenantNames || '[Tenant Name(s)]'}
               <br />
               {data.forwardingAddress ? (
-                <span style={{ whiteSpace: 'pre-line' }}>
-                  {data.forwardingAddress}
-                </span>
+                <span style={{ whiteSpace: 'pre-line' }}>{data.forwardingAddress}</span>
               ) : (
                 '[Tenant Forwarding Address]'
               )}
@@ -59,29 +41,29 @@ export default function LetterPreview({ data, math }) {
           </div>
 
           <div className="subject-line">
-            RE: Security Deposit Return for{' '}
-            {data.propertyAddress || '[Property Address]'}
+            RE: Security Deposit Disposition — {data.propertyAddress || '[Property Address]'}
           </div>
 
           <p>
             This letter serves as the formal itemized statement of the
             disposition of your security deposit for the property located at{' '}
-            {data.propertyAddress || '[Property Address]'}. According to our
-            records, you vacated the premises on {formatDate(data.moveOutDate)}.
+            <strong>{data.propertyAddress || '[Property Address]'}</strong>.
+            According to our records, you vacated the premises on{' '}
+            {formatDate(data.moveOutDate)}.
           </p>
 
           {!hasDeductions ? (
             <p>
               <em>
-                No deductions have been assessed. The full deposit will be
-                returned.
+                No deductions have been assessed. The full security deposit
+                will be returned.
               </em>
             </p>
           ) : (
             <table className="deduction-table">
               <thead>
                 <tr>
-                  <th>Description</th>
+                  <th>Description of Deduction</th>
                   <th className="text-right">Amount</th>
                 </tr>
               </thead>
@@ -91,14 +73,8 @@ export default function LetterPreview({ data, math }) {
                     <td>
                       {item.description || '[Item Description]'}
                       {item.note && (
-                        <div
-                          style={{
-                            fontSize: '0.85em',
-                            color: '#555',
-                            marginTop: '0.25rem',
-                          }}
-                        >
-                          Reference: {item.note}
+                        <div className="deduction-reference">
+                          Ref: {item.note}
                         </div>
                       )}
                     </td>
@@ -122,15 +98,15 @@ export default function LetterPreview({ data, math }) {
                 <span>{formatCurrency(data.accruedInterest)}</span>
               </div>
             )}
-            <div className="summary-row">
-              <span>Total Deductions:</span>
-              <span>- {formatCurrency(math.totalDeductions)}</span>
-            </div>
+            {hasDeductions && (
+              <div className="summary-row">
+                <span>Total Deductions:</span>
+                <span>− {formatCurrency(math.totalDeductions)}</span>
+              </div>
+            )}
             <div className="summary-row summary-total">
               <span>
-                {math.balance >= 0
-                  ? 'Balance Due to Tenant:'
-                  : 'Outstanding Balance:'}
+                {math.balance >= 0 ? 'Balance Due to Tenant:' : 'Outstanding Balance Owed:'}
               </span>
               <span>{formatCurrency(Math.abs(math.balance))}</span>
             </div>
@@ -144,8 +120,10 @@ export default function LetterPreview({ data, math }) {
             <p>{data.landlordName || '[Landlord Name]'}</p>
           </div>
         </div>
+
         <p className="preview-note no-print">
-          Preview only. Your browser print dialog will generate the final PDF.
+          Preview only — your browser&rsquo;s print dialog generates the final PDF.
+          Use <strong>Save as PDF</strong> in the print dialog.
         </p>
       </div>
     </section>
