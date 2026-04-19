@@ -3,9 +3,18 @@ import posthog from 'posthog-js';
 import FormPanel from './components/FormPanel';
 import LetterPreview from './components/LetterPreview';
 import SeoContent from './components/SeoContent';
-import LeadModal from './components/LeadModal';
+
 import { parseNum, validateData } from './utils/helpers';
 import './App.css';
+
+function makeEmptyDeduction() {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    description: '',
+    note: '',
+    amount: '',
+  };
+}
 
 const initialData = {
   landlordName: '',
@@ -17,14 +26,13 @@ const initialData = {
   noticeDate: new Date().toISOString().split('T')[0],
   originalDeposit: '',
   accruedInterest: '',
-  deductions: [],
+  deductions: [makeEmptyDeduction()],
 };
 
 function useDepositLetterState() {
   const [data, setData] = useState(initialData);
   const [showValidation, setShowValidation] = useState(false);
   const [printed, setPrinted] = useState(false);
-  const [showLeadModal, setShowLeadModal] = useState(false);
   const [formStarted, setFormStarted] = useState(false);
 
   const deposit = parseNum(data.originalDeposit);
@@ -69,9 +77,6 @@ function useDepositLetterState() {
 
     window.print();
     setPrinted(true);
-
-    // Show lead modal after user returns from print dialog
-    setTimeout(() => setShowLeadModal(true), 1500);
   };
 
   const handleReset = () => {
@@ -90,8 +95,6 @@ function useDepositLetterState() {
     validation,
     showValidation,
     printed,
-    showLeadModal,
-    setShowLeadModal,
     handleFormStart,
     handlePrint,
     handleReset,
@@ -106,8 +109,6 @@ export default function App() {
     validation,
     showValidation,
     printed,
-    showLeadModal,
-    setShowLeadModal,
     handleFormStart,
     handlePrint,
     handleReset,
@@ -167,11 +168,6 @@ export default function App() {
           Print / Save as PDF
         </button>
       </div>
-
-      <LeadModal
-        isOpen={showLeadModal}
-        onClose={() => setShowLeadModal(false)}
-      />
     </div>
   );
 }

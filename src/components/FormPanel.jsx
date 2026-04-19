@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { formatCurrency, makeId } from '../utils/helpers';
 
 function getFieldClass(error) {
@@ -27,21 +28,72 @@ function TrustBadges() {
   );
 }
 
-function SuccessCallout({ onReset }) {
+function PostPrintBanner({ onReset }) {
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch('https://formspree.io/f/YOUR_ENDPOINT_HERE', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+    } catch (_) {
+      // Fail silently
+    }
+    setEmailSubmitted(true);
+  };
+
   return (
-    <div className="success-callout" role="status">
-      <div className="success-callout__icon" aria-hidden="true">✓</div>
-      <div>
-        <strong>Draft ready to print.</strong>
-        <p>
-          Save the PDF, then attach physical receipts for each deduction before mailing to your tenant.
-        </p>
-        <p className="success-callout__sub">
-          <strong>Before you send:</strong> Deadlines, allowable deductions, and notice requirements vary by state and sometimes by city. This tool formats your letter — it does not verify whether your deductions are lawful or whether you are within your return window. Check your local rules before mailing.
-        </p>
-        <button type="button" className="btn btn-outline" style={{ marginTop: '0.75rem' }} onClick={onReset}>
-          Start a new letter
-        </button>
+    <div className="post-print-banner" role="status">
+      <div className="post-print-banner__left">
+        <div className="post-print-banner__check" aria-hidden="true">✓</div>
+        <div>
+          <strong>Letter ready to print.</strong>
+          <p>
+            Attach receipts and send via certified mail. Keep your tracking number.
+          </p>
+          <p className="post-print-banner__compliance">
+            Deadlines and allowable deductions vary by state. Verify your local
+            rules before mailing.
+          </p>
+          <button type="button" className="btn btn-outline post-print-banner__reset" onClick={onReset}>
+            Start a new letter
+          </button>
+        </div>
+      </div>
+      <div className="post-print-banner__divider" aria-hidden="true" />
+      <div className="post-print-banner__right">
+        {emailSubmitted ? (
+          <div className="post-print-banner__thanks">
+            <strong>✓ You're on the list.</strong>
+            <p>We'll notify you when new landlord tools launch.</p>
+          </div>
+        ) : (
+          <>
+            <p className="post-print-banner__pitch">
+              <strong>Get notified</strong> when we add state-specific deadline
+              guidance, move-in checklists, and notice generators.
+            </p>
+            <form onSubmit={handleSubmit} className="post-print-banner__form">
+              <label htmlFor="banner-email" className="sr-only">Your email</label>
+              <input
+                id="banner-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                className="post-print-banner__input"
+              />
+              <button type="submit" className="btn btn-primary post-print-banner__btn">
+                Get Updates
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
@@ -181,7 +233,7 @@ export default function FormPanel({
         </div>
       )}
 
-      {printed && <SuccessCallout onReset={onReset} />}
+      {printed && <PostPrintBanner onReset={onReset} />}
 
       <div className="summary-card" aria-label="Calculation summary">
         <h3>Live Summary</h3>
@@ -289,7 +341,9 @@ export default function FormPanel({
             placeholder={"789 New St\nCambridge, MA 02139"}
           />
           <p className="helper-text">
-            Include the tenant's new address to mail the letter directly.
+            If the tenant did not provide a forwarding address, you must mail
+            this to the rental property address to legally prove you attempted
+            delivery.
           </p>
         </div>
       </div>
@@ -454,8 +508,8 @@ export default function FormPanel({
 
         {data.deductions.length === 0 && (
           <p className="helper-text deduction-empty-hint">
-            No deductions yet — the full deposit will be returned. Add a
-            deduction below if applicable.
+            Add a deduction below. Enter a description and dollar amount for
+            each item — cleaning, repairs, unpaid rent, etc.
           </p>
         )}
 

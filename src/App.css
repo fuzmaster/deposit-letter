@@ -892,3 +892,132 @@ table.deduction-table th {
   font-size: 0.875rem;
   color: var(--text-muted);
 }
+
+/* ─── Screen-reader only utility ─── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── Post-print inline lead banner ─── */
+.post-print-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+@media (min-width: 640px) {
+  .post-print-banner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+.post-print-banner__left {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex: 1 1 55%;
+}
+.post-print-banner__check {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.post-print-banner__left strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.post-print-banner__left p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+}
+.post-print-banner__compliance {
+  font-size: 0.75rem !important;
+  color: var(--text-muted);
+  border-top: 1px solid #bbf7d0;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem !important;
+}
+.post-print-banner__reset {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  padding: 0.45rem 0.85rem;
+}
+.post-print-banner__divider {
+  display: none;
+}
+@media (min-width: 640px) {
+  .post-print-banner__divider {
+    display: block;
+    width: 1px;
+    background: #bbf7d0;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+}
+.post-print-banner__right {
+  flex: 1 1 40%;
+}
+.post-print-banner__pitch {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+.post-print-banner__form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.post-print-banner__input {
+  flex: 1 1 160px;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  background: white;
+  min-width: 0;
+}
+.post-print-banner__input:focus {
+  outline: 2px solid rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+}
+.post-print-banner__btn {
+  font-size: 0.85rem;
+  padding: 0.55rem 1rem;
+  white-space: nowrap;
+}
+.post-print-banner__thanks {
+  font-size: 0.85rem;
+}
+.post-print-banner__thanks strong {
+  display: block;
+  color: #166534;
+  margin-bottom: 0.25rem;
+}
+.post-print-banner__thanks p {
+  color: var(--text-muted);
+  margin: 0;
+}
