@@ -14,7 +14,7 @@ export default function LeadModal({ isOpen, onClose }) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email }),
       });
-    } catch (_) {
+    } catch {
       // Fail silently — don't block the user on a lead capture error
     }
     setSubmitted(true);

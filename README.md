@@ -2,7 +2,7 @@
 
 A stateless, client-side React utility that generates professional security deposit deduction letters for self-managing landlords.
 
-**Live:** [deposit-letter.vercel.app](https://deposit-letter.vercel.app/)
+**Live:** [depositletter.com](https://depositletter.com/)
 
 ---
 

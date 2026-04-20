@@ -40,7 +40,7 @@ function PostPrintBanner({ onReset }) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email }),
       });
-    } catch (_) {
+    } catch {
       // Fail silently
     }
     setEmailSubmitted(true);
@@ -175,11 +175,17 @@ export default function FormPanel({
   onReset,
   onFormStart,
 }) {
+  const markFormStarted = () => {
+    if (onFormStart) onFormStart();
+  };
+
   const updateField = (field, value) => {
+    markFormStarted();
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addDeduction = () => {
+    markFormStarted();
     setData((prev) => ({
       ...prev,
       deductions: [
@@ -195,6 +201,7 @@ export default function FormPanel({
   };
 
   const updateDeduction = (id, field, value) => {
+    markFormStarted();
     setData((prev) => ({
       ...prev,
       deductions: prev.deductions.map((item) =>
@@ -204,6 +211,7 @@ export default function FormPanel({
   };
 
   const removeDeduction = (id) => {
+    markFormStarted();
     setData((prev) => ({
       ...prev,
       deductions: prev.deductions.filter((item) => item.id !== id),
@@ -266,7 +274,6 @@ export default function FormPanel({
             type="text"
             value={data.landlordName}
             onChange={(e) => updateField('landlordName', e.target.value)}
-            onFocus={onFormStart}
             className={getFieldClass(errors.landlordName)}
             aria-invalid={Boolean(errors.landlordName)}
             aria-describedby={errors.landlordName ? 'landlordName-error' : undefined}

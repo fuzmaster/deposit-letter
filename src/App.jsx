@@ -154,6 +154,7 @@ export default function App() {
         determine whether a deduction is legally allowed, what return deadline applies, whether interest
         is required, or what notices and attachments your state or city may require.{' '}
         <strong>Review your local laws before sending.</strong>
+        <p>Copyright Jacob Britten 2026</p>
       </footer>
 
       <div className="mobile-action-bar no-print">
