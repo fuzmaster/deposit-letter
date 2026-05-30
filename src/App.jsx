@@ -7,6 +7,10 @@ import SeoContent from './components/SeoContent';
 import { parseNum, validateData } from './utils/helpers';
 import './App.css';
 
+const track = (event, props) => {
+  if (posthog.__loaded) posthog.capture(event, props);
+};
+
 function makeEmptyDeduction() {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -54,7 +58,7 @@ function useDepositLetterState() {
   // Track first interaction — fires once per session
   const handleFormStart = () => {
     if (!formStarted) {
-      posthog.capture('form_started');
+      track('form_started');
       setFormStarted(true);
     }
   };
@@ -63,14 +67,14 @@ function useDepositLetterState() {
     setShowValidation(true);
 
     if (!validation.isValid) {
-      posthog.capture('validation_failed', {
+      track('validation_failed', {
         error_count: validation.errorList.length,
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    posthog.capture('pdf_download_clicked', {
+    track('pdf_download_clicked', {
       deduction_count: data.deductions.length,
       balance_due: math.balance,
     });
@@ -84,7 +88,7 @@ function useDepositLetterState() {
     setShowValidation(false);
     setPrinted(false);
     setFormStarted(false);
-    posthog.capture('form_reset');
+    track('form_reset');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -154,7 +158,9 @@ export default function App() {
         determine whether a deduction is legally allowed, what return deadline applies, whether interest
         is required, or what notices and attachments your state or city may require.{' '}
         <strong>Review your local laws before sending.</strong>
-        <p>Copyright Jacob Britten 2026</p>
+        <p>
+          Copyright Jacob Britten 2026 · <a href="/privacy.html">Privacy Policy</a>
+        </p>
       </footer>
 
       <div className="mobile-action-bar no-print">

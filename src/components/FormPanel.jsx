@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { formatCurrency, makeId } from '../utils/helpers';
 
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT;
+
 function getFieldClass(error) {
   return error ? 'input-error' : '';
 }
@@ -10,11 +12,11 @@ function TrustBadges() {
     <div className="trust-badges">
       <span className="trust-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Private in your browser
+        Form data stays in your browser
       </span>
       <span className="trust-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        No data saved
+        No account required
       </span>
       <span className="trust-badge">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -31,11 +33,16 @@ function TrustBadges() {
 function PostPrintBanner({ onReset }) {
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (honeypot) {
+      setEmailSubmitted(true);
+      return;
+    }
     try {
-      await fetch('https://formspree.io/f/YOUR_ENDPOINT_HERE', {
+      await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email }),
@@ -64,37 +71,51 @@ function PostPrintBanner({ onReset }) {
           </button>
         </div>
       </div>
-      <div className="post-print-banner__divider" aria-hidden="true" />
-      <div className="post-print-banner__right">
-        {emailSubmitted ? (
-          <div className="post-print-banner__thanks">
-            <strong>✓ You're on the list.</strong>
-            <p>We'll notify you when new landlord tools launch.</p>
+      {FORMSPREE_ENDPOINT && (
+        <>
+          <div className="post-print-banner__divider" aria-hidden="true" />
+          <div className="post-print-banner__right">
+            {emailSubmitted ? (
+              <div className="post-print-banner__thanks">
+                <strong>✓ You're on the list.</strong>
+                <p>We'll notify you when new landlord tools launch.</p>
+              </div>
+            ) : (
+              <>
+                <p className="post-print-banner__pitch">
+                  <strong>Get notified</strong> when we add state-specific deadline
+                  guidance, move-in checklists, and notice generators.
+                </p>
+                <form onSubmit={handleSubmit} className="post-print-banner__form">
+                  <label htmlFor="banner-email" className="sr-only">Your email</label>
+                  <input
+                    id="banner-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    className="post-print-banner__input"
+                  />
+                  <input
+                    type="text"
+                    name="_gotcha"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex="-1"
+                    autoComplete="off"
+                    aria-hidden="true"
+                    style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+                  />
+                  <button type="submit" className="btn btn-primary post-print-banner__btn">
+                    Get Updates
+                  </button>
+                </form>
+              </>
+            )}
           </div>
-        ) : (
-          <>
-            <p className="post-print-banner__pitch">
-              <strong>Get notified</strong> when we add state-specific deadline
-              guidance, move-in checklists, and notice generators.
-            </p>
-            <form onSubmit={handleSubmit} className="post-print-banner__form">
-              <label htmlFor="banner-email" className="sr-only">Your email</label>
-              <input
-                id="banner-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="post-print-banner__input"
-              />
-              <button type="submit" className="btn btn-primary post-print-banner__btn">
-                Get Updates
-              </button>
-            </form>
-          </>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -155,7 +176,7 @@ function AboutThisTool() {
             <li>Does not check whether you are within your return deadline</li>
             <li>Does not tell you if interest is owed on the deposit</li>
             <li>Does not replace a landlord-tenant attorney for contested disputes</li>
-            <li>Does not store, send, or track anything — all data stays in your browser</li>
+            <li>Does not store or transmit your letter contents — form data stays in your browser</li>
           </ul>
         </div>
       </div>

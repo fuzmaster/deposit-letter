@@ -1,15 +1,23 @@
 import { useState } from 'react';
 
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT;
+
 export default function LeadModal({ isOpen, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   if (!isOpen) return null;
+  if (!FORMSPREE_ENDPOINT) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (honeypot) {
+      setSubmitted(true);
+      return;
+    }
     try {
-      await fetch('https://formspree.io/f/YOUR_ENDPOINT_HERE', {
+      await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email }),
@@ -63,6 +71,16 @@ export default function LeadModal({ isOpen, onClose }) {
                 placeholder="you@example.com"
                 required
                 className="modal-input"
+              />
+              <input
+                type="text"
+                name="_gotcha"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex="-1"
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
               />
               <button type="submit" className="btn btn-primary modal-submit">
                 Get Free Updates
