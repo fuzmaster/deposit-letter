@@ -22,12 +22,13 @@ This project is intentionally constrained to a zero-backend model.
 
 | Concern | Decision |
 |---|---|
-| Framework | React + Vite |
+| Framework | React 19 + Vite |
 | State | 100% local React state — no database, no sessions |
 | PDF export | `@media print` CSS + `window.print()` — no PDF library |
 | Analytics | PostHog (manual events only, no autocapture) |
 | Lead capture | Formspree (no backend required) |
 | Persistence | None by design — all data stays in-browser |
+| Hosting | Vercel (static build + security headers via `vercel.json`) |
 
 ### Why no PDF library?
 
@@ -49,6 +50,11 @@ src/
 ├── App.jsx                 # App shell, useDepositLetterState hook, layout
 ├── App.css                 # All styles including @media print overrides
 └── main.jsx                # Vite entry, PostHog init
+public/
+├── privacy.html            # Standalone privacy policy
+├── robots.txt
+└── sitemap.xml
+vercel.json                 # CSP, HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy
 ```
 
 ---
@@ -62,19 +68,18 @@ npm run dev
 
 ### Configuration
 
-Before deploying, replace the two placeholder values:
+Both integrations are optional — the app degrades gracefully when their env vars are absent (analytics no-ops, email modal hides). Set them in a local `.env.local` file (gitignored) or your hosting provider's environment settings.
 
-**PostHog** (`src/main.jsx`):
-```js
-posthog.init('YOUR_POSTHOG_PROJECT_API_KEY', { ... })
+```env
+VITE_POSTHOG_KEY=phc_xxxxxxxxxxxxxxxxxxxxxxxxxx
+VITE_POSTHOG_HOST=https://us.i.posthog.com   # optional, defaults to US cloud
+VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
 ```
-Get your key at [app.posthog.com](https://app.posthog.com).
 
-**Formspree** (`src/components/LeadModal.jsx`):
-```js
-await fetch('https://formspree.io/f/YOUR_ENDPOINT_HERE', { ... })
-```
-Create a free form at [formspree.io](https://formspree.io).
+- PostHog: get a project key at [app.posthog.com](https://app.posthog.com).
+- Formspree: create a free form at [formspree.io](https://formspree.io).
+
+These keys are `VITE_*` prefixed because they ship in the browser bundle — both providers issue them as public-by-design client keys. No server-side secrets exist in this project.
 
 ---
 
@@ -89,6 +94,15 @@ Create a free form at [formspree.io](https://formspree.io).
 
 ---
 
+## Security & Privacy
+
+- **No backend, no database** — letter contents never leave the browser. Only an opt-in email (Formspree) and aggregate analytics events (PostHog) are transmitted.
+- **Security headers** are applied at the edge via [`vercel.json`](./vercel.json): strict CSP, HSTS preload, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, restrictive `Permissions-Policy`.
+- **Spam protection** on both email forms via honeypot fields plus Formspree's per-endpoint rate limiting.
+- **Privacy policy** lives at [/privacy.html](./public/privacy.html) and discloses both vendors and the data-deletion contact.
+
+---
+
 ## Deployment
 
 This is a static Vite build — deploy anywhere that serves static files:
@@ -98,7 +112,7 @@ npm run build
 # Deploy the dist/ folder
 ```
 
-Recommended: [Vercel](https://vercel.com) or [Cloudflare Pages](https://pages.cloudflare.com) — both have free tiers and zero-config Vite support.
+Vercel is recommended because [`vercel.json`](./vercel.json) ships security headers as part of the deploy. On other hosts (Cloudflare Pages, Netlify, S3+CloudFront), translate those headers to the equivalent host config.
 
 ---
 
