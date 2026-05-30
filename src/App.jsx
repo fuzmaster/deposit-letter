@@ -163,6 +163,23 @@ export default function App() {
         </p>
       </footer>
 
+      {/* JBD BACKLINK FOOTER START */}
+      <footer className="jbd-backlink-footer no-print">
+        <div className="jbd-backlink-footer__inner">
+          <p className="jbd-backlink-footer__brand">
+            Built by <a href="https://jacobbritten.com" target="_blank" rel="noopener noreferrer">Jacob Britten</a> &mdash; Media Systems Architect
+          </p>
+          <nav className="jbd-backlink-footer__links" aria-label="Jacob Britten">
+            <a href="https://jacobbritten.com" target="_blank" rel="noopener noreferrer">Portfolio</a>
+            <a href="https://jacobbritten.com/projects.html" target="_blank" rel="noopener noreferrer">Projects</a>
+            <a href="https://jacobbritten.com/lab.html" target="_blank" rel="noopener noreferrer">The Lab</a>
+            <a href="https://ko-fi.com/jacobbritten" target="_blank" rel="noopener noreferrer">Ko-fi</a>
+            <a href="https://www.paypal.com/donate/?hosted_button_id=47A4JJ4WNBY9U" target="_blank" rel="noopener noreferrer">PayPal</a>
+          </nav>
+        </div>
+      </footer>
+      {/* JBD BACKLINK FOOTER END */}
+
       <div className="mobile-action-bar no-print">
         <button type="button" className="btn btn-outline" onClick={handleReset}>
           Reset
